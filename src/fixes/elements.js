@@ -20,22 +20,6 @@ var propertyElement = new CapsList('Element.prototype', {
 		return this.detachEvent('on' + eventType, function () {
 			handler.apply(_this, arguments);
 		}, useCapture)
-	},
-
-	'onfullscreenchange': {
-		aliases: ['onwebkitfullscreenchange', 'onmozfullscreenchange']
-	},
-
-	'onfullscreenerror': {
-		aliases: ['onwebkitfullscreenerror', 'onmozfullscreenerror']
-	},
-
-	'onpointerlockchange': {
-		aliases: ['onwebkitpointerlockchange', 'onmozfullscreenchange']
-	},
-
-	'onpointerlockerror': {
-		aliases: ['onwebkitpointerlockerror', 'onmozfullscreenchange']
 	}
 
 });
@@ -62,7 +46,23 @@ var proxyElement = new CapsList('Element.prototype', {
 	'requestFullscreen'  : {
 		aliases: ['requestFullScreen']
 	},
-	'requestPointerLock' : null
+	'requestPointerLock' : null,
+
+	'onfullscreenchange': {
+		aliases: ['onwebkitfullscreenchange', 'onmozfullscreenchange']
+	},
+
+	'onfullscreenerror': {
+		aliases: ['onwebkitfullscreenerror', 'onmozfullscreenerror']
+	},
+
+	'onpointerlockchange': {
+		aliases: ['onwebkitpointerlockchange', 'onmozfullscreenchange']
+	},
+
+	'onpointerlockerror': {
+		aliases: ['onwebkitpointerlockerror', 'onmozfullscreenchange']
+	}
 });
 
 

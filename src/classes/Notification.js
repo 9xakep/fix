@@ -87,8 +87,8 @@ function Notification () {
 		'cursor'        : 'pointer'
 	});
 	HTMLShowDetailsSpan.innerHTML = Notification.DETAILS_TEXT;
-	HTMLShowDetailsSpan.onclick = function () {
-		_this._onclickDetails();
+	HTMLShowDetailsSpan.onmousedown = function () {
+		return _this._onclickDetails();
 	};
 
 

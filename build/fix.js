@@ -502,7 +502,6 @@ Fix.prototype.triggerDetectOldBrowser = function (property) {
 };
 
 
-
 /*******************************************************************************************************
  *                                         Класс Notification                                          *
  *                                                                                                     *
@@ -592,8 +591,8 @@ function Notification () {
 		'cursor'        : 'pointer'
 	});
 	HTMLShowDetailsSpan.innerHTML = Notification.DETAILS_TEXT;
-	HTMLShowDetailsSpan.onclick = function () {
-		_this._onclickDetails();
+	HTMLShowDetailsSpan.onmousedown = function () {
+		return _this._onclickDetails();
 	};
 
 
@@ -1076,22 +1075,6 @@ var propertyElement = new CapsList('Element.prototype', {
 		return this.detachEvent('on' + eventType, function () {
 			handler.apply(_this, arguments);
 		}, useCapture)
-	},
-
-	'onfullscreenchange': {
-		aliases: ['onwebkitfullscreenchange', 'onmozfullscreenchange']
-	},
-
-	'onfullscreenerror': {
-		aliases: ['onwebkitfullscreenerror', 'onmozfullscreenerror']
-	},
-
-	'onpointerlockchange': {
-		aliases: ['onwebkitpointerlockchange', 'onmozfullscreenchange']
-	},
-
-	'onpointerlockerror': {
-		aliases: ['onwebkitpointerlockerror', 'onmozfullscreenchange']
 	}
 
 });
@@ -1118,7 +1101,23 @@ var proxyElement = new CapsList('Element.prototype', {
 	'requestFullscreen'  : {
 		aliases: ['requestFullScreen']
 	},
-	'requestPointerLock' : null
+	'requestPointerLock' : null,
+
+	'onfullscreenchange': {
+		aliases: ['onwebkitfullscreenchange', 'onmozfullscreenchange']
+	},
+
+	'onfullscreenerror': {
+		aliases: ['onwebkitfullscreenerror', 'onmozfullscreenerror']
+	},
+
+	'onpointerlockchange': {
+		aliases: ['onwebkitpointerlockchange', 'onmozfullscreenchange']
+	},
+
+	'onpointerlockerror': {
+		aliases: ['onwebkitpointerlockerror', 'onmozfullscreenchange']
+	}
 });
 
 
