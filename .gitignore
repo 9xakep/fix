@@ -140,4 +140,4 @@ Desktop.ini
 #############
 
 #Grunt project builder
-#node_modules/
+node_modules/
