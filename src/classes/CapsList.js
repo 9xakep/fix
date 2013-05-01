@@ -67,13 +67,11 @@ CapsList.addEventListener = function (handler) {
  * то кладет этот путь в буфер. И если потом обработчик будет установлен то все
  * такие "пути" из буфера будут им обработаны.
  *
- * @param {Array.<string>} currentPatch - путь до свойства которое не удалось получить
+ * @param {string} patchToProperty - путь до свойства которое не удалось получить
  *
  * @private
  */
-CapsList._cantReadProperty = function (currentPatch) {
-
-	var patchToProperty = currentPatch.join('.');
+CapsList._cantReadProperty = function (patchToProperty) {
 
 	if (CapsList.oncantgettarget instanceof Function) {
 		CapsList.oncantgettarget(patchToProperty)
@@ -104,7 +102,9 @@ CapsList.prototype._getObjectFromPatch = function (patch) {
 		currentPatch.push(key);
 
 		if (context[key] === undefined || context[key] === null) {
-			CapsList._cantReadProperty(currentPatch);
+			var patchToProperty = currentPatch.join('.');
+			CapsList._cantReadProperty(patchToProperty);
+			
 			return null;
 		}
 
