@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Fix</title>
+
+    <style>
+        body {
+            text-align : center;
+        }
+
+        #box {
+            display          : inline-block;
+            box-sizing       : border-box;
+            -moz-box-sizing  : border-box;
+            background-color : #333;
+            width            : 500px;
+            height           : 400px;
+            font-size        : 38px;
+            text-align       : center;
+            padding-top      : 240px;
+            color            : #fff;
+        }
+    </style>
+</head>
+<body>
+
+
+<div id="box"></div>
+
+
+<script src="classes/Fix.js"></script>
+<script src="classes/Notification.js"></script>
+<script src="fixes/ecma5.js"></script>
+<script src="fixes/window.js"></script>
+<script src="fixes/css.js"></script>
+<script src="fixes/events.js"></script>
+<script src="fixes/elements.js"></script>
+<script src="build.js"></script>
+
+<script>
+
+
+    var box = document.getElementById('box');
+    var toggle = true;
+
+    box.addEventListener('click', function () {
+        if (toggle) {
+            box.requestFullscreen();
+            box.requestPointerLock();
+        }
+        else {
+            document.cancelFullscreen();
+            document.exitPointerLock();
+        }
+
+        toggle = !toggle;
+    });
+
+
+    box.addEventListener('mousemove', function (event) {
+        this.innerHTML = event.movementX + '<br>' + event.movementY;
+    }, true);
+
+</script>
+</body>
+</html>
