@@ -124,10 +124,14 @@ CapsList.prototype._getObjectFromPatch = function (patch) {
 };
 
 
-/*                           Класс Fix
- Основной класс, можно сказать ядро скрипта, умеет вешать заглушки и
- альтерантивные релизации на разные свойства, ему скармликаем паки CapsList
- __________________________________________________________________________*/
+/*******************************************************************************************************
+ *                                            Класс Fix                                                *
+ *                                                                                                     *
+ *                 Основной класс, можно сказать ядро скрипта, умеет вешать заглушки и                 *
+ *              альтерантивные релизации на разные свойства, ему скармликаем паки CapsList             *
+ *                                                                                                     *
+ *                                                                                                     *
+ *******************************************************************************************************/
 
 /** @constructor */
 function Fix () {
@@ -432,11 +436,15 @@ Fix.prototype.triggerDetectOldBrowser = function (property) {
 Fix.onoldbrowserdetected = null;
 
 
-/*                           Класс Notification
+/*******************************************************************************************************
+ *                                         Класс Notification                                          *
+ *                                                                                                     *
+ *                Класс создает вверху страницы окно уведомленя о том что браузер устарел,             *
+ *             какие свойства не поддерживаются, ссылки на скачку нормальных браузеров и.т.п.          *
+ *                                                                                                     *
+ *                                                                                                     *
+ *******************************************************************************************************/
 
- Класс создает вверху страницы окно уведомленя о том что браузер устарел,
- какие свойства не поддерживаются, ссылки на скачку нормальных браузеров и.т.п.
- _______________________________________________________________________________*/
 
 /**
  * Создает блок вверху страницы уведомляющий человека о том что его браузер устарел
@@ -679,229 +687,237 @@ Notification.prototype._addDetail = function (messageText) {
 };
 
 
-/*                 Создаем заглушки для element.style
+/*******************************************************************************************************
+ *                                 Создаем заглушки для element.style                                  *
+ *                                                                                                     *
+ *            По сути альтернативрую реализацию сделать затруднительно, по этому в основном            *
+ *            просто передаем в качестве заглушки null, по этому Fix просто поищет вендорные           *
+ *            аналоги и если что-то будет проксировать обращение к этим свойствам на них,              *
+ *            если вендорных не найдется, то получим хотя бы уведомление о том что браузер             *
+ *                                              устарел.                                               *
+ *                                                                                                     *
+ *******************************************************************************************************/
+// TODO Возможно в будущем надо будет добавить 2 уровня warning и error,
+//потому что не совсем справедливо показывать уведомление что браузер устарел
+//только из-за того что какое-то css свойство не поддерживается.
 
- По сути альтернативрую реализацию сделать затруднительно, по этому в основном
- просто передаем в качестве заглушки null, по этому Fix просто поищет
- вендорные аналоги и если что то будет проксировать обращение к этим свойствам
- на них, если вендорных не найдется, то получим хотя бы уведомление о том что
- браузер устарел.
 
- TODO Возможно в будущем надо будет добавить 2 уровня warning и error,
- потому что не совсем справедливо показывать уведомление что браузер устарел
- только из-за того что какое-то css свойство не поддерживается.
- ______________________________________________________________________________*/
+var proxyCss = new CapsList('CSSStyleDeclaration.prototype', {
 
-var proxyCss = new CapsList('CSSStyleDeclaration.prototype',
-
-	{
-		"alignContent"            : null,
-		"alignItems"              : null,
-		"alignSelf"               : null,
-		"animation"               : null,
-		"animationDelay"          : null,
-		"animationDirection"      : null,
-		"animationDuration"       : null,
-		"animationFillMode"       : null,
-		"animationIterationCount" : null,
-		"animationName"           : null,
-		"animationPlayState"      : null,
-		"animationTimingFunction" : null,
-		"appRegion"               : null,
-		"appearance"              : null,
-		"aspectRatio"             : null,
-		"backfaceVisibility"      : null,
+	"alignContent"            : null,
+	"alignItems"              : null,
+	"alignSelf"               : null,
+	"animation"               : null,
+	"animationDelay"          : null,
+	"animationDirection"      : null,
+	"animationDuration"       : null,
+	"animationFillMode"       : null,
+	"animationIterationCount" : null,
+	"animationName"           : null,
+	"animationPlayState"      : null,
+	"animationTimingFunction" : null,
+	"appRegion"               : null,
+	"appearance"              : null,
+	"aspectRatio"             : null,
+	"backfaceVisibility"      : null,
 //		"backgroundClip"          : null,
-		"backgroundComposite"     : null,
-		"backgroundOrigin"        : null,
-		"backgroundSize"          : null,
-		"borderAfter"             : null,
-		"borderAfterColor"        : null,
-		"borderAfterStyle"        : null,
-		"borderAfterWidth"        : null,
-		"borderBefore"            : null,
-		"borderBeforeColor"       : null,
-		"borderBeforeStyle"       : null,
-		"borderBeforeWidth"       : null,
-		"borderEnd"               : null,
-		"borderEndColor"          : null,
-		"borderEndStyle"          : null,
-		"borderEndWidth"          : null,
-		"borderFit"               : null,
-		"borderHorizontalSpacing" : null,
-		"borderImage"             : null,
-		"borderRadius"            : null,
-		"borderStart"             : null,
-		"borderStartColor"        : null,
-		"borderStartStyle"        : null,
-		"borderStartWidth"        : null,
-		"borderVerticalSpacing"   : null,
-		"boxAlign"                : null,
-		"boxDecorationBreak"      : null,
-		"boxDirection"            : null,
-		"boxFlex"                 : null,
-		"boxFlexGroup"            : null,
-		"boxLines"                : null,
-		"boxOrdinalGroup"         : null,
-		"boxOrient"               : null,
-		"boxPack"                 : null,
-		"boxShadow"               : null,
-		"clipPath"                : null,
-		"colorCorrection"         : null,
-		"columnAxis"              : null,
-		"columnBreakAfter"        : null,
-		"columnBreakBefore"       : null,
-		"columnBreakInside"       : null,
-		"columnCount"             : null,
-		"columnGap"               : null,
-		"columnProgression"       : null,
-		"columnRule"              : null,
-		"columnRuleColor"         : null,
-		"columnRuleStyle"         : null,
-		"columnRuleWidth"         : null,
-		"columnSpan"              : null,
-		"columnWidth"             : null,
-		"columns"                 : null,
-		"filter"                  : null,
-		"flex"                    : null,
-		"flexBasis"               : null,
-		"flexDirection"           : null,
-		"flexFlow"                : null,
-		"flexGrow"                : null,
-		"flexShrink"              : null,
-		"flexWrap"                : null,
-		"flowFrom"                : null,
-		"flowInto"                : null,
-		"fontFeatureSettings"     : null,
-		"fontKerning"             : null,
-		"fontSizeDelta"           : null,
-		"fontSmoothing"           : null,
-		"fontVariantLigatures"    : null,
-		"gridAfter"               : null,
-		"gridAutoColumns"         : null,
-		"gridAutoFlow"            : null,
-		"gridAutoRows"            : null,
-		"gridBefore"              : null,
-		"gridColumn"              : null,
-		"gridColumns"             : null,
-		"gridEnd"                 : null,
-		"gridRow"                 : null,
-		"gridRows"                : null,
-		"gridStart"               : null,
-		"highlight"               : null,
-		"hyphenateCharacter"      : null,
-		"hyphenateLimitAfter"     : null,
-		"hyphenateLimitBefore"    : null,
-		"hyphenateLimitLines"     : null,
-		"hyphens"                 : null,
-		"justifyContent"          : null,
-		"lineAlign"               : null,
-		"lineBoxContain"          : null,
-		"lineBreak"               : null,
-		"lineClamp"               : null,
-		"lineGrid"                : null,
-		"lineSnap"                : null,
-		"locale"                  : null,
-		"logicalHeight"           : null,
-		"logicalWidth"            : null,
-		"marginAfter"             : null,
-		"marginAfterCollapse"     : null,
-		"marginBefore"            : null,
-		"marginBeforeCollapse"    : null,
-		"marginBottomCollapse"    : null,
-		"marginCollapse"          : null,
-		"marginEnd"               : null,
-		"marginStart"             : null,
-		"marginTopCollapse"       : null,
-		"marquee"                 : null,
-		"marqueeDirection"        : null,
-		"marqueeIncrement"        : null,
-		"marqueeRepetition"       : null,
-		"marqueeSpeed"            : null,
-		"marqueeStyle"            : null,
-		"mask"                    : null,
-		"maskBoxImage"            : null,
-		"maskBoxImageOutset"      : null,
-		"maskBoxImageRepeat"      : null,
-		"maskBoxImageSlice"       : null,
-		"maskBoxImageSource"      : null,
-		"maskBoxImageWidth"       : null,
-		"maskClip"                : null,
-		"maskComposite"           : null,
-		"maskImage"               : null,
-		"maskOrigin"              : null,
-		"maskPosition"            : null,
-		"maskPositionX"           : null,
-		"maskPositionY"           : null,
-		"maskRepeat"              : null,
-		"maskRepeatX"             : null,
-		"maskRepeatY"             : null,
-		"maskSize"                : null,
-		"maxLogicalHeight"        : null,
-		"maxLogicalWidth"         : null,
-		"minLogicalHeight"        : null,
-		"minLogicalWidth"         : null,
-		"nbspMode"                : null,
-		"order"                   : null,
-		"paddingAfter"            : null,
-		"paddingBefore"           : null,
-		"paddingEnd"              : null,
-		"paddingStart"            : null,
-		"perspective"             : null,
-		"perspectiveOrigin"       : null,
-		"perspectiveOriginX"      : null,
-		"perspectiveOriginY"      : null,
-		"printColorAdjust"        : null,
-		"regionBreakAfter"        : null,
-		"regionBreakBefore"       : null,
-		"regionBreakInside"       : null,
-		"regionOverflow"          : null,
-		"rtlOrdering"             : null,
-		"rubyPosition"            : null,
-		"shapeInside"             : null,
-		"shapeMargin"             : null,
-		"shapeOutside"            : null,
-		"shapePadding"            : null,
-		"svgShadow"               : null,
-		"tapHighlightColor"       : null,
-		"textCombine"             : null,
-		"textDecorationsInEffect" : null,
-		"textEmphasis"            : null,
-		"textEmphasisColor"       : null,
-		"textEmphasisPosition"    : null,
-		"textEmphasisStyle"       : null,
-		"textFillColor"           : null,
-		"textOrientation"         : null,
-		"textSecurity"            : null,
-		"textStroke"              : null,
-		"textStrokeColor"         : null,
-		"textStrokeWidth"         : null,
-		"transform"               : null,
-		"transformOrigin"         : null,
-		"transformOriginX"        : null,
-		"transformOriginY"        : null,
-		"transformOriginZ"        : null,
-		"transformStyle"          : null,
-		"transition"              : null,
-		"transitionDelay"         : null,
-		"transitionDuration"      : null,
-		"transitionProperty"      : null,
-		"transitionTimingFunction": null,
-		"userDrag"                : null,
-		"userModify"              : null,
-		"userSelect"              : null,
-		"wrap"                    : null,
-		"wrapFlow"                : null,
-		"wrapThrough"             : null,
-		"writingMode"             : null
-	}
-);
+	"backgroundComposite"     : null,
+	"backgroundOrigin"        : null,
+	"backgroundSize"          : null,
+	"borderAfter"             : null,
+	"borderAfterColor"        : null,
+	"borderAfterStyle"        : null,
+	"borderAfterWidth"        : null,
+	"borderBefore"            : null,
+	"borderBeforeColor"       : null,
+	"borderBeforeStyle"       : null,
+	"borderBeforeWidth"       : null,
+	"borderEnd"               : null,
+	"borderEndColor"          : null,
+	"borderEndStyle"          : null,
+	"borderEndWidth"          : null,
+	"borderFit"               : null,
+	"borderHorizontalSpacing" : null,
+	"borderImage"             : null,
+	"borderRadius"            : null,
+	"borderStart"             : null,
+	"borderStartColor"        : null,
+	"borderStartStyle"        : null,
+	"borderStartWidth"        : null,
+	"borderVerticalSpacing"   : null,
+	"boxAlign"                : null,
+	"boxDecorationBreak"      : null,
+	"boxDirection"            : null,
+	"boxFlex"                 : null,
+	"boxFlexGroup"            : null,
+	"boxLines"                : null,
+	"boxOrdinalGroup"         : null,
+	"boxOrient"               : null,
+	"boxPack"                 : null,
+	"boxShadow"               : null,
+	"clipPath"                : null,
+	"colorCorrection"         : null,
+	"columnAxis"              : null,
+	"columnBreakAfter"        : null,
+	"columnBreakBefore"       : null,
+	"columnBreakInside"       : null,
+	"columnCount"             : null,
+	"columnGap"               : null,
+	"columnProgression"       : null,
+	"columnRule"              : null,
+	"columnRuleColor"         : null,
+	"columnRuleStyle"         : null,
+	"columnRuleWidth"         : null,
+	"columnSpan"              : null,
+	"columnWidth"             : null,
+	"columns"                 : null,
+	"filter"                  : null,
+	"flex"                    : null,
+	"flexBasis"               : null,
+	"flexDirection"           : null,
+	"flexFlow"                : null,
+	"flexGrow"                : null,
+	"flexShrink"              : null,
+	"flexWrap"                : null,
+	"flowFrom"                : null,
+	"flowInto"                : null,
+	"fontFeatureSettings"     : null,
+	"fontKerning"             : null,
+	"fontSizeDelta"           : null,
+	"fontSmoothing"           : null,
+	"fontVariantLigatures"    : null,
+	"gridAfter"               : null,
+	"gridAutoColumns"         : null,
+	"gridAutoFlow"            : null,
+	"gridAutoRows"            : null,
+	"gridBefore"              : null,
+	"gridColumn"              : null,
+	"gridColumns"             : null,
+	"gridEnd"                 : null,
+	"gridRow"                 : null,
+	"gridRows"                : null,
+	"gridStart"               : null,
+	"highlight"               : null,
+	"hyphenateCharacter"      : null,
+	"hyphenateLimitAfter"     : null,
+	"hyphenateLimitBefore"    : null,
+	"hyphenateLimitLines"     : null,
+	"hyphens"                 : null,
+	"justifyContent"          : null,
+	"lineAlign"               : null,
+	"lineBoxContain"          : null,
+	"lineBreak"               : null,
+	"lineClamp"               : null,
+	"lineGrid"                : null,
+	"lineSnap"                : null,
+	"locale"                  : null,
+	"logicalHeight"           : null,
+	"logicalWidth"            : null,
+	"marginAfter"             : null,
+	"marginAfterCollapse"     : null,
+	"marginBefore"            : null,
+	"marginBeforeCollapse"    : null,
+	"marginBottomCollapse"    : null,
+	"marginCollapse"          : null,
+	"marginEnd"               : null,
+	"marginStart"             : null,
+	"marginTopCollapse"       : null,
+	"marquee"                 : null,
+	"marqueeDirection"        : null,
+	"marqueeIncrement"        : null,
+	"marqueeRepetition"       : null,
+	"marqueeSpeed"            : null,
+	"marqueeStyle"            : null,
+	"mask"                    : null,
+	"maskBoxImage"            : null,
+	"maskBoxImageOutset"      : null,
+	"maskBoxImageRepeat"      : null,
+	"maskBoxImageSlice"       : null,
+	"maskBoxImageSource"      : null,
+	"maskBoxImageWidth"       : null,
+	"maskClip"                : null,
+	"maskComposite"           : null,
+	"maskImage"               : null,
+	"maskOrigin"              : null,
+	"maskPosition"            : null,
+	"maskPositionX"           : null,
+	"maskPositionY"           : null,
+	"maskRepeat"              : null,
+	"maskRepeatX"             : null,
+	"maskRepeatY"             : null,
+	"maskSize"                : null,
+	"maxLogicalHeight"        : null,
+	"maxLogicalWidth"         : null,
+	"minLogicalHeight"        : null,
+	"minLogicalWidth"         : null,
+	"nbspMode"                : null,
+	"order"                   : null,
+	"paddingAfter"            : null,
+	"paddingBefore"           : null,
+	"paddingEnd"              : null,
+	"paddingStart"            : null,
+	"perspective"             : null,
+	"perspectiveOrigin"       : null,
+	"perspectiveOriginX"      : null,
+	"perspectiveOriginY"      : null,
+	"printColorAdjust"        : null,
+	"regionBreakAfter"        : null,
+	"regionBreakBefore"       : null,
+	"regionBreakInside"       : null,
+	"regionOverflow"          : null,
+	"rtlOrdering"             : null,
+	"rubyPosition"            : null,
+	"shapeInside"             : null,
+	"shapeMargin"             : null,
+	"shapeOutside"            : null,
+	"shapePadding"            : null,
+	"svgShadow"               : null,
+	"tapHighlightColor"       : null,
+	"textCombine"             : null,
+	"textDecorationsInEffect" : null,
+	"textEmphasis"            : null,
+	"textEmphasisColor"       : null,
+	"textEmphasisPosition"    : null,
+	"textEmphasisStyle"       : null,
+	"textFillColor"           : null,
+	"textOrientation"         : null,
+	"textSecurity"            : null,
+	"textStroke"              : null,
+	"textStrokeColor"         : null,
+	"textStrokeWidth"         : null,
+	"transform"               : null,
+	"transformOrigin"         : null,
+	"transformOriginX"        : null,
+	"transformOriginY"        : null,
+	"transformOriginZ"        : null,
+	"transformStyle"          : null,
+	"transition"              : null,
+	"transitionDelay"         : null,
+	"transitionDuration"      : null,
+	"transitionProperty"      : null,
+	"transitionTimingFunction": null,
+	"userDrag"                : null,
+	"userModify"              : null,
+	"userSelect"              : null,
+	"wrap"                    : null,
+	"wrapFlow"                : null,
+	"wrapThrough"             : null,
+	"writingMode"             : null
+});
 
 
 /*           Создаем заглушки для методов и свойств для поддержки ECMA5
 
  Например Function.prototype.bind или [].indexOf и [].sort и.т.п.
  _____________________________________________________________________________*/
+/*******************************************************************************************************
+ *                    Создаем заглушки для методов и свойств для поддержки ECMA5                       *
+ *                                                                                                     *
+ *      Например Function.prototype.bind или Array.prototype.indexOf и Array.prototype.sort и.т.п.     *
+ *                                                                                                     *
+ *******************************************************************************************************/
+
+
 
 /*
  Переопределим defineProperty для IE8, так как там он работает только с родными
@@ -975,8 +991,10 @@ var propertyArray = new CapsList('Array.prototype', {
 });
 
 
-/*             Создаем заглушки для свойств HTML элементов
- __________________________________________________________________________*/
+/*******************************************************************************************************
+ *                         Создаем заглушки для свойств HTML элементов                                 *
+ *                                                                                                     *
+ *******************************************************************************************************/
 
 
 var propertyElement = new CapsList('Element.prototype', {
@@ -1078,8 +1096,11 @@ var overrideElement = (function () {
 })();
 
 
-/*               Создаем заглушки для свойств обьектов событий
- __________________________________________________________________________*/
+/*******************************************************************************************************
+ *                           Создаем заглушки для свойств обьектов событий                             *
+ *                                                                                                     *
+ *******************************************************************************************************/
+
 
 var proxyEvent = (function () {
 
@@ -1132,12 +1153,15 @@ var proxyEvent = (function () {
 })();
 
 
-/*                  Создаем заглушки для свойств window
+/********************************************************************************************************
+ *                               Создаем заглушки для свойств window                                    *
+ *                                                                                                      *
+ *                В основном конечно тут ищутся вендорные аналоги, потому что мало что из               *
+ *              того что содержит window можно реализовать вручную, по этому в большенстве              *
+ *                     случаев за место альтернативной реализаций передаем null                         *
+ *                                                                                                      *
+ *******************************************************************************************************/
 
- В основном конечно тут ищутся вендорные аналоги, потому что мало что из
- того что содержит window можно реализовать вручную, по этому в большенстве
- случаев за место альтернативной реализаций передаем null
- __________________________________________________________________________*/
 
 var propertyWindow = new CapsList('window', {
 
