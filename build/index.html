@@ -1,17 +1,16 @@
 <!DOCTYPE html>
 <html>
 <head>
+
     <meta charset="UTF-8">
     <title>Fix</title>
 
-    <!--<script src="fix.js"></script>-->
     <script src="fix.min.js"></script>
 
     <style>
         body {
             text-align : center;
         }
-
         #box {
             display          : inline-block;
             box-sizing       : border-box;
@@ -25,14 +24,16 @@
             color            : #fff;
         }
     </style>
+
 </head>
 <body>
 
 
 <div id="box"></div>
 
-<script>
 
+<!-- краштест для ie =) -->
+<script>
     var box = document.getElementById('box');
     var toggle = true;
 
@@ -53,7 +54,7 @@
     box.addEventListener('mousemove', function (event) {
         this.innerHTML = event.movementX + '<br>' + event.movementY;
     }, true);
-
 </script>
+
 </body>
 </html>
