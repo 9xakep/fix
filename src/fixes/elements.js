@@ -41,31 +41,29 @@ var propertyElement = new CapsList('Element.prototype', {
 });
 
 
-var proxyElement = new CapsList('Element.prototype',
+var proxyElement = new CapsList('Element.prototype', {
 
-	{
-		'createShadowRoot'   : null,
-		'getRegionFlowRanges': null,
-		'querySelectorAll'   : null,
-		'matchesSelector'    : {
-			value: function (selector) {
-				var elements = this.parentNode.querySelectorAll(selector);
+	'createShadowRoot'   : null,
+	'getRegionFlowRanges': null,
+	'querySelectorAll'   : null,
+	'matchesSelector'    : {
+		value: function (selector) {
+			var elements = this.parentNode.querySelectorAll(selector);
 
-				for (var i = 0; i < elements.length; i++) {
-					if (elements[i] === this) {
-						return true;
-					}
+			for (var i = 0; i < elements.length; i++) {
+				if (elements[i] === this) {
+					return true;
 				}
-
-				return false;
 			}
-		},
-		'requestFullscreen'  : {
-			aliases: ['requestFullScreen']
-		},
-		'requestPointerLock' : null
-	}
-);
+
+			return false;
+		}
+	},
+	'requestFullscreen'  : {
+		aliases: ['requestFullScreen']
+	},
+	'requestPointerLock' : null
+});
 
 
 var proxyDocument = new CapsList('document', {
