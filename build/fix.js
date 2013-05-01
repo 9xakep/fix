@@ -1,8 +1,10 @@
+/*				      класс CapsList
+ __________________________________________________________________________*/
+
 /**
  * Список альтернативных реализаций свойств, для браузеров которые их не поддерживают.
  *
- * @param {Object|string} target - глобальный путь до обьекта в котором будем реализовывать свойства
- *    (можно просто передать сам обьект).
+ * @param {Object|string} target - глобальный путь до обьекта в котором будем реализовывать свойства.
  * @param {Object} caps - список альтернативных решений //TODO сделать пиздатое описание
  *
  * @see Fix#addPropertyCaps|Fix#addProxyCaps
@@ -68,13 +70,11 @@ CapsList.addEventListener = function (handler) {
  * то кладет этот путь в буфер. И если потом обработчик будет установлен то все
  * такие "пути" из буфера будут им обработаны.
  *
- * @param {Array.<string>} currentPatch - путь до свойства которое не удалось получить
+ * @param {string} patchToProperty - путь до свойства которое не удалось получить
  *
  * @private
  */
-CapsList._cantReadProperty = function (currentPatch) {
-
-	var patchToProperty = currentPatch.join('.');
+CapsList._cantReadProperty = function (patchToProperty) {
 
 	if (CapsList.oncantgettarget instanceof Function) {
 		CapsList.oncantgettarget(patchToProperty)
@@ -105,7 +105,9 @@ CapsList.prototype._getObjectFromPatch = function (patch) {
 		currentPatch.push(key);
 
 		if (context[key] === undefined || context[key] === null) {
-			CapsList._cantReadProperty(currentPatch);
+			var patchToProperty = currentPatch.join('.');
+			CapsList._cantReadProperty(patchToProperty);
+
 			return null;
 		}
 
@@ -115,6 +117,9 @@ CapsList.prototype._getObjectFromPatch = function (patch) {
 	return context
 };
 
+
+/*				      класс Fix
+ __________________________________________________________________________*/
 
 /** @constructor */
 function Fix () {
@@ -419,6 +424,9 @@ Fix.prototype.triggerDetectOldBrowser = function (property) {
 Fix.onoldbrowserdetected = null;
 
 
+/*				    класс Notification
+ __________________________________________________________________________*/
+
 /**
  * Создает блок вверху страницы уведомляющий человека о том что его браузер устарел
  * @constructor
@@ -660,6 +668,9 @@ Notification.prototype._addDetail = function (messageText) {
 };
 
 
+/*		       Создаем заглушки для element.style
+ __________________________________________________________________________*/
+
 var proxyCss = new CapsList('CSSStyleDeclaration.prototype',
 
 	{
@@ -866,6 +877,9 @@ var proxyCss = new CapsList('CSSStyleDeclaration.prototype',
 );
 
 
+/*      Создаем альтернативные реализации для поддержки ECMA5
+ __________________________________________________________________________*/
+
 /*
  Переопределим defineProperty для IE8, так как там он работает только с родными элементами.
  Если был вызван не относительно родного обьекта и выбросил исключение,
@@ -938,6 +952,47 @@ var propertyArray = new CapsList('Array.prototype', {
 });
 
 
+/*                Создаем заглушки для свойств HTML элементов
+ __________________________________________________________________________*/
+
+
+var propertyElement = new CapsList('Element.prototype', {
+
+	'addEventListener': function (eventType, handler, useCapture) {
+		var _this = this;
+
+		return this.attachEvent('on' + eventType, function () {
+			handler.apply(_this, arguments);
+		}, useCapture);
+	},
+
+	'removeEventListener': function (eventType, handler, useCapture) {
+		var _this = this;
+
+		return this.detachEvent('on' + eventType, function () {
+			handler.apply(_this, arguments);
+		}, useCapture)
+	},
+
+	'onfullscreenchange': {
+		aliases: ['onwebkitfullscreenchange', 'onmozfullscreenchange']
+	},
+
+	'onfullscreenerror': {
+		aliases: ['onwebkitfullscreenerror', 'onmozfullscreenerror']
+	},
+
+	'onpointerlockchange': {
+		aliases: ['onwebkitpointerlockchange', 'onmozfullscreenchange']
+	},
+
+	'onpointerlockerror': {
+		aliases: ['onwebkitpointerlockerror', 'onmozfullscreenchange']
+	}
+
+});
+
+
 var proxyElement = new CapsList('Element.prototype',
 
 	{
@@ -977,8 +1032,31 @@ var proxyDocument = new CapsList('document', {
 });
 
 
+var overrideElement = (function () {
+
+	var prefixes = ['webkit', 'moz'];
+
+	function cap (original) {
+		return function (name, handler, bo) {
+
+			for (var i = 0; i < prefixes.length; i++) {
+				original.call(this, prefixes[i] + name, handler, bo);
+			}
+
+			original.apply(this, arguments);
+		}
+	}
+
+	return new CapsList('Element.prototype', {
+
+		'addEventListener'   : cap,
+		'removeEventListener': cap
+	});
+})();
 
 
+/*              Создаем заглушки для свойств обьектов событий
+ __________________________________________________________________________*/
 
 var proxyEvent = (function () {
 
@@ -1031,65 +1109,8 @@ var proxyEvent = (function () {
 })();
 
 
-var propertyElement = new CapsList('Element.prototype', {
-
-	'addEventListener': function (eventType, handler, useCapture) {
-		var _this = this;
-
-		return this.attachEvent('on' + eventType, function () {
-			handler.apply(_this, arguments);
-		}, useCapture);
-	},
-
-	'removeEventListener': function (eventType, handler, useCapture) {
-		var _this = this;
-
-		return this.detachEvent('on' + eventType, function () {
-			handler.apply(_this, arguments);
-		}, useCapture)
-	},
-
-	'onfullscreenchange': {
-		aliases: ['onwebkitfullscreenchange', 'onmozfullscreenchange']
-	},
-
-	'onfullscreenerror': {
-		aliases: ['onwebkitfullscreenerror', 'onmozfullscreenerror']
-	},
-
-	'onpointerlockchange': {
-		aliases: ['onwebkitpointerlockchange', 'onmozfullscreenchange']
-	},
-
-	'onpointerlockerror': {
-		aliases: ['onwebkitpointerlockerror', 'onmozfullscreenchange']
-	}
-
-});
-
-
-var overrideElement = (function () {
-
-	var prefixes = ['webkit', 'moz'];
-
-	function cap (original) {
-		return function (name, handler, bo) {
-
-			for (var i = 0; i < prefixes.length; i++) {
-				original.call(this, prefixes[i] + name, handler, bo);
-			}
-
-			original.apply(this, arguments);
-		}
-	}
-
-	return new CapsList('Element.prototype', {
-
-		'addEventListener'   : cap,
-		'removeEventListener': cap
-	});
-})();
-
+/*                Создаем заглушки для свойств window
+ __________________________________________________________________________*/
 
 var propertyWindow = new CapsList('window', {
 
@@ -1144,6 +1165,9 @@ var propertyWindow = new CapsList('window', {
 	'speechRecognitionEvent'     : null
 });
 
+
+/*				     Тут все собираем
+ __________________________________________________________________________*/
 
 var fix = new Fix;
 var notification = new Notification;

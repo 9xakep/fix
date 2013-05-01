@@ -1,3 +1,6 @@
+/*                Создаем заглушки для свойств window
+ __________________________________________________________________________*/
+
 var propertyWindow = new CapsList('window', {
 
 	'AnimationEvent'             : null,

@@ -1,3 +1,6 @@
+/*              Создаем заглушки для свойств обьектов событий
+ __________________________________________________________________________*/
+
 var proxyEvent = (function () {
 
 	function hash (value) {
@@ -46,64 +49,4 @@ var proxyEvent = (function () {
 		}
 	});
 
-})();
-
-
-var propertyElement = new CapsList('Element.prototype', {
-
-	'addEventListener': function (eventType, handler, useCapture) {
-		var _this = this;
-
-		return this.attachEvent('on' + eventType, function () {
-			handler.apply(_this, arguments);
-		}, useCapture);
-	},
-
-	'removeEventListener': function (eventType, handler, useCapture) {
-		var _this = this;
-
-		return this.detachEvent('on' + eventType, function () {
-			handler.apply(_this, arguments);
-		}, useCapture)
-	},
-
-	'onfullscreenchange': {
-		aliases: ['onwebkitfullscreenchange', 'onmozfullscreenchange']
-	},
-
-	'onfullscreenerror': {
-		aliases: ['onwebkitfullscreenerror', 'onmozfullscreenerror']
-	},
-
-	'onpointerlockchange': {
-		aliases: ['onwebkitpointerlockchange', 'onmozfullscreenchange']
-	},
-
-	'onpointerlockerror': {
-		aliases: ['onwebkitpointerlockerror', 'onmozfullscreenchange']
-	}
-
-});
-
-
-var overrideElement = (function () {
-
-	var prefixes = ['webkit', 'moz'];
-
-	function cap (original) {
-		return function (name, handler, bo) {
-
-			for (var i = 0; i < prefixes.length; i++) {
-				original.call(this, prefixes[i] + name, handler, bo);
-			}
-
-			original.apply(this, arguments);
-		}
-	}
-
-	return new CapsList('Element.prototype', {
-
-		'addEventListener'   : cap,
-		'removeEventListener': cap
-	});
 })();

@@ -1,3 +1,6 @@
+/*		       Создаем заглушки для element.style
+ __________________________________________________________________________*/
+
 var proxyCss = new CapsList('CSSStyleDeclaration.prototype',
 
 	{
