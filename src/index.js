@@ -7,10 +7,10 @@
 var fix = new Fix;
 var notification = new Notification;
 
-Fix.onoldbrowserdetected = function (key) {
-	notification.addMessage(key);
-};
 
+Fix.addEventListener(function (key) {
+	notification.addMessage(key);
+});
 
 CapsList.addEventListener(function (key) {
 	notification.addMessage(key);

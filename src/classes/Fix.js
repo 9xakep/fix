@@ -7,6 +7,7 @@
  *                                                                                                     *
  *******************************************************************************************************/
 
+
 /** @constructor */
 function Fix () {
 
@@ -16,8 +17,65 @@ function Fix () {
 
 
 /**
+ * Обработчик, вызывается когда обнаружена проблема, например не удается получить доступ
+ * к какому-то свойству или нет альтернативной реализации к запращиваемому свойству
+ * на которое повешана заглушка и.т.п.
+ *
+ * @type {Function|null}
+ * @static @private
+ */
+Fix._onproblem = null;
+
+
+/**
+ * Буфер обнаруженых проблем, если обработчик события "_onproblem" не установлен,
+ * то обнаруженные проблемы складываются сюда, а при установке обработчика он вызывается
+ * относительно каждой проблемы.
+ *
+ * @type {Array.<string>}
+ * @static @private
+ */
+Fix._problemsBuffer = [];
+
+
+/**
+ * Добавляет обработчик проблем, обработчик вызывается каждый раз когда не удается
+ * получить доступ к какому-то свойству, или нет альтернативной реализации
+ * у запрашиваемого свойства, обычно это означает что браузер устарел.
+ * Если проблемы были обнаружены до установки обработчика, то они складывались в буфер
+ * и, если он не пустой, при установке, обработчик вызовется относительно каждой
+ * проблемы из буфера.
+ *
+ * @param {Function} handler - обработчик проблем
+ *
+ * @static @public
+ */
+Fix.addEventListener = function (handler) {
+	var problemsBuffer = Fix._problemsBuffer;
+
+	if (problemsBuffer.length) {
+		for (var i = 0; i < problemsBuffer.length; i++) {
+			var problem = problemsBuffer[i];
+			handler.call(this, problem);
+		}
+	}
+
+	this._onproblem = handler;
+};
+
+
+/**
+ * Добавляет обьекту реализацию новых свойств, прежде чем добавить реализацию
+ * проверяется, реализованно ли уже такое свойство, если да, то оно игнгорируется,
+ * если нет, то проверяется есть ли префиксные аналоги этого свойства,
+ * если есть, то свойству присваивается префексный аналог, если нет,
+ * то используется альтернативная реализация переданная в capsList, если за место
+ * альтернативной реализациипередан null (что означает отсутствие альтернативной реализации),
+ * то на свойство вешается геттер, при обращении к которому сработает событие "_onproblem"
+ *
  * @param {CapsList} capsList - список заглушек и альтернативных решений
  *
+ * @public
  */
 Fix.prototype.addPropertyCaps = function (capsList) {
 
@@ -39,7 +97,8 @@ Fix.prototype.addPropertyCaps = function (capsList) {
 				continue
 			}
 
-			this._addWarningGetter(target, key);
+			// нет альтернативной реализации, вешаем геттер
+			this._addProblemGetter(target, key);
 			continue;
 		}
 
@@ -48,17 +107,26 @@ Fix.prototype.addPropertyCaps = function (capsList) {
 };
 
 
-Fix.prototype._addWarningGetter = function (target, key) {
+/**
+ * Устаналивает геттер на свойство, при обращении к которому сработает событие "_onproblem"
+ *
+ * @param {Object} target - обьект с которым работаем
+ * @param {string} key    - имя свойства на которое вешаем геттер
+ *
+ * @private
+ */
+Fix.prototype._addProblemGetter = function (target, key) {
 
 	var _this = this;
 
 	this._defineProperty(target, key, {
 
 		get: function () {
-			return _this._oldBrowser(target, key);
+			return _this._problemDetected(target, key);
 		},
-		set: function (value) {
 
+		// добавляем в сеттер возможность перекрыть свойство новым значением
+		set: function (value) {
 			_this._defineProperty(this, key, {
 				value: value
 			});
@@ -70,7 +138,30 @@ Fix.prototype._addWarningGetter = function (target, key) {
 
 
 /**
- * @see #addProxyCaps
+ * Добавляет обьекту реализацию новых свойств. Но в отличии от метода addPropertyCaps
+ * Присваивает свойству не новое значение, а вешает на не
+ *
+ * @param {CapsList} capsList - список заглушек и альтернативных решений
+ *
+ * @public
+ */
+Fix.prototype.addProxyCaps = function (capsList) {
+
+	var target = capsList.target;
+	var caps = capsList.caps;
+
+	if (!target) return;
+
+	for (var key in caps) {
+		if (key in target)continue;
+
+		var capOptions = caps[key];
+		this._addProxyCap(target, key, capOptions);
+	}
+};
+
+/**
+ * Добавляет обьекту реализацию новых свойств
  *
  * @param {Object} target
  * @param {string} key
@@ -114,7 +205,7 @@ Fix.prototype._addProxyCap = function (target, key, capOptions) {
 						return alternativeValue;
 					}
 
-					return _this._oldBrowser(target, key);
+					return _this._problemDetected(target, key);
 				}
 			}
 			return this[detectedWorkingKey];
@@ -129,7 +220,7 @@ Fix.prototype._addProxyCap = function (target, key, capOptions) {
 						return alternativeSetter.call(this, value);
 					}
 
-					_this._oldBrowser(target, key);
+					_this._problemDetected(target, key);
 
 					return value;
 				}
@@ -140,38 +231,11 @@ Fix.prototype._addProxyCap = function (target, key, capOptions) {
 };
 
 
-/**
- * Добавляет прокси заглушки на свойства.
- * После применения, при обращении к этим свойствам, если они не найдены, происходит поиск
- * их псевдонимов и аналогов с префиксами, если ни то ни другое не найдено, то используется
- * альтернативная реализация, елси альтернативной реализации нет, то
- * срабатывает событие "обнаружен старый браузер"
- *
- * @param {CapsList} capsList - список заглушек и альтернативных решений
- *
- * @public
- */
-Fix.prototype.addProxyCaps = function (capsList) {
-
-	var target = capsList.target;
-	var caps = capsList.caps;
-
-	if (!target) return;
-
-	for (var key in caps) {
-		if (key in target)continue;
-
-		var capOptions = caps[key];
-		this._addProxyCap(target, key, capOptions);
-	}
-};
-
-
 Fix.prototype._defineProperty = function (target, key, description) {
 	if ('defineProperty' in Object) {
 		return Object.defineProperty(target, key, description);
 	} else {
-		this._oldBrowser(Object, 'Object.defineProperty');
+		this._problemDetected(Object, 'Object.defineProperty');
 	}
 };
 
@@ -290,10 +354,14 @@ Fix.prototype.override = function (options) {
 };
 
 
-Fix.prototype._oldBrowser = function (context, property) {
+Fix.prototype._problemDetected = function (context, property) {
 
-	if (Fix.onoldbrowserdetected instanceof Function) {
-		Fix.onoldbrowserdetected(property);
+	// если установлен обработчик проблем, то выховем его, если не установлен,
+	// то пометим проблему в буффер
+	if (Fix._onproblem instanceof Function) {
+		Fix._onproblem(property);
+	} else {
+		Fix._problemsBuffer.push(property);
 	}
 
 	/*Возвращаем функцию, чтобы максимально сохранить работоспособность приложений,
@@ -304,7 +372,5 @@ Fix.prototype._oldBrowser = function (context, property) {
 
 
 Fix.prototype.triggerDetectOldBrowser = function (property) {
-	this._oldBrowser(null, property);
+	this._problemDetected(null, property);
 };
-
-Fix.onoldbrowserdetected = null;
