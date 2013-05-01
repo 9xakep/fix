@@ -1,15 +1,52 @@
+/**
+ * Список альтернативных реализаций свойств, для браузеров которые их не поддерживают.
+ *
+ * @param {Object|string} target - глобальный путь до обьекта в котором будем реализовывать свойства.
+ * @param {Object} caps - список альтернативных решений //TODO сделать пиздатое описание
+ *
+ * @see Fix#addPropertyCaps|Fix#addProxyCaps
+ * @constructor
+ */
 function CapsList (target, caps) {
 
-	this.target = this._getTargetObject(target);
+	if (typeof target === 'string') {
+		target = this._getObjectFromPatch(target);
+	}
+
+	this.target = target;
 	this.caps = caps;
 
 }
 
 
+/**
+ * @type {Function|null} - установленный обработчик события "oncantgettarget"
+ *
+ * @static
+ */
 CapsList.oncantgettarget = null;
+
+
+/**
+ * @type {Array} - бцфер в котором накапливаются пути, по которым не удалось получить обьекты,
+ * до тех пор пока не установиться обработчик события "oncantgettarget",
+ * потом этот обработчик пробегается по ним всем сразу.
+ *
+ * @static
+ */
 CapsList.cantReadPropertiesList = [];
 
 
+/**
+ * Добавляет обрчботчик единственного события "oncantgettarget"(не могу получить цель).
+ * Так же, если нель не могла быть получена еще ДО установки обработчика, то пути до целей
+ * помещались в буфер, и если он не пустой, то обработчик вызовется для каждого путя из буфера.
+ *
+ * @param {Function} handler - обрыботчик, принимает первым параметром путь до цели которую
+ * не удалось получить.
+ *
+ * @static
+ */
 CapsList.addEventListener = function (handler) {
 
 	var properties = CapsList.cantReadPropertiesList;
@@ -24,37 +61,50 @@ CapsList.addEventListener = function (handler) {
 };
 
 
-CapsList._cantReadProperty = function (key) {
+/**
+ * Вызывает обработчик событие "oncantgettarget" и передает в него первым параметром
+ * путь до свойства которое не удалось получить. Если обработчик не установлен,
+ * то кладет этот путь в буфер. И если потом обработчик будет установлен то все
+ * такие "пути" из буфера будут им обработаны.
+ *
+ * @param {Array.<string>} currentPatch - путь до свойства которое не удалось получить
+ *
+ * @private
+ */
+CapsList._cantReadProperty = function (currentPatch) {
+
+	var patchToProperty = currentPatch.join('.');
 
 	if (CapsList.oncantgettarget instanceof Function) {
-		CapsList.oncantgettarget(key)
+		CapsList.oncantgettarget(patchToProperty)
 	}
 	else {
-		CapsList.cantReadPropertiesList.push(key);
+		CapsList.cantReadPropertiesList.push(patchToProperty);
 	}
 };
 
 
 /**
- * Пытается получить обьект по пути, елси не выходит то старый браузер обнаружен
+ * Возвращает обьект по пути (относительно глобального обьекта).
  *
- * @param   {string|Object} patch - путь до обьекта 'foo.bar.baz' либо сразу ссылка на обьект
+ * @param   {string} patch - путь до обьекта в стиле 'foo.bar.baz'
  *
  * @returns {Object|null} либо полученый обьект, либо null
  * @private
  */
-CapsList.prototype._getTargetObject = function (patch) {
-
-	if (typeof patch !== 'string') return patch;
+CapsList.prototype._getObjectFromPatch = function (patch) {
 
 	var context = window;
 	var keys = patch.split('.');
+	var currentPatch = [];
 
 	for (var i = 0; i < keys.length; i++) {
 		var key = keys[i];
 
+		currentPatch.push(key);
+
 		if (context[key] === undefined || context[key] === null) {
-			CapsList._cantReadProperty(key);
+			CapsList._cantReadProperty(currentPatch);
 			return null;
 		}
 

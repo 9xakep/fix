@@ -134,3 +134,10 @@ Desktop.ini
 
 #Project settings
 .idea
+
+#############
+## JetBrains
+#############
+
+#Grunt project builder
+#node_modules/
