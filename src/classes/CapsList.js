@@ -104,7 +104,7 @@ CapsList.prototype._getObjectFromPatch = function (patch) {
 		if (context[key] === undefined || context[key] === null) {
 			var patchToProperty = currentPatch.join('.');
 			CapsList._cantReadProperty(patchToProperty);
-			
+
 			return null;
 		}
 
